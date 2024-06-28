@@ -155,7 +155,7 @@ class ToolNode(BaseNode):
         files = self._extract_tool_response_binary(messages_)
         plain_text = self._extract_tool_response_text(messages_)
         json = self._extract_tool_response_json(messages)
-        result=messages # DG for testing
+        result = messages # DG for testing
 
         return plain_text, files, json, result
 
