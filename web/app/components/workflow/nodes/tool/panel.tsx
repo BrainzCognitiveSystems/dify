@@ -132,6 +132,11 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
               description={t(`${i18nPrefix}.outputVars.files.title`)}
             />
             <VarItem
+              name='json'
+              type='String'
+              description={t(`${i18nPrefix}.outputVars.json`)}
+            />
+            <VarItem
                 name= 'metadata'
                 type= 'object'
                 description={t(`${i18nPrefix}.outputVars.metadata`)}
