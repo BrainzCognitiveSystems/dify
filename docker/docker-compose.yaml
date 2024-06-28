@@ -259,7 +259,7 @@ x-shared-env: &shared-api-worker-env
 services:
   # API service
   api:
-    image: langgenius/dify-api:0.6.10
+    image: langgenius/dify-api:0.6.12
     restart: always
     environment:
       # Use the shared environment variables.
@@ -282,7 +282,7 @@ services:
   # worker service
   # The Celery worker for processing the queue.
   worker:
-    image: langgenius/dify-api:0.6.10
+    image: langgenius/dify-api:0.6.12
     restart: always
     environment:
       # Use the shared environment variables.
@@ -301,7 +301,7 @@ services:
 
   # Frontend web application.
   web:
-    image: langgenius/dify-web:0.6.10
+    image: langgenius/dify-web:0.6.12
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -375,7 +375,7 @@ services:
     volumes:
       - ./ssrf_proxy/squid.conf.template:/etc/squid/squid.conf.template
       - ./ssrf_proxy/docker-entrypoint.sh:/docker-entrypoint.sh
-    entrypoint: /docker-entrypoint.sh
+    entrypoint: ["sh", "-c", "chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh"]
     environment:
       # pls clearly modify the squid env vars to fit your network environment.
       HTTP_PORT: ${HTTP_PORT:-3128}
@@ -398,7 +398,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/docker-entrypoint.sh:/docker-entrypoint.sh
       - ./nginx/ssl:/etc/ssl
-    entrypoint: /docker-entrypoint.sh
+    entrypoint: ["sh", "-c", "chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh"]
     environment:
       NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-_}
       HTTPS_ENABLED: ${HTTPS_ENABLED:-false}
