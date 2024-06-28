@@ -28,22 +28,22 @@ class SearXNGSearchTool(BuiltinTool):
         "page": "general",
         "news": "news",
         "image": "images",
-        # "video": "videos",
-        # "file": "files"
+        "video": "videos",
+        "file": "files"
     }
     LINK_FILED: dict[str, str] = {
         "page": "url",
         "news": "url",
         "image": "img_src",
-        # "video": "iframe_src",
-        # "file": "magnetlink"
+        "video": "iframe_src",
+        "file": "magnetlink"
     }
     TEXT_FILED: dict[str, str] = {
         "page": "content",
         "news": "content",
         "image": "img_src",
-        # "video": "iframe_src",
-        # "file": "magnetlink"
+        "video": "iframe_src",
+        "file": "magnetlink"
     }
 
     def _invoke_query(self, user_id: str, host: str, query: str, search_type: str, result_type: str, topK: int = 5) -> list[dict]:
@@ -63,6 +63,10 @@ class SearXNGSearchTool(BuiltinTool):
             raise Exception(f'Error {response.status_code}: {response.text}')
         
         search_results = SearXNGSearchResults(response.text).results[:topK]
+
+        if result_type == 'objects':
+            # transform dic to json string
+            return [ self.create_text_message(text=json.dumps(dic, indent=4)) for dic in search_results]
 
         if result_type == 'link':
             results = []

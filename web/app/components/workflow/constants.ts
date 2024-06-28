@@ -377,6 +377,18 @@ export const TOOL_OUTPUT_STRUCT: Var[] = [
     variable: 'files',
     type: VarType.arrayFile,
   },
+  {
+    variable: 'metadata',
+    type: VarType.object,
+  },
+  {
+    variable: 'objectsXX',
+    type: VarType.arrayObject,
+  },
+  {
+    variable: 'stringsXX',
+    type: VarType.arrayString,
+  },
 ]
 
 export const PARAMETER_EXTRACTOR_COMMON_STRUCT: Var[] = [

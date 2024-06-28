@@ -131,6 +131,49 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
               type='Array[File]'
               description={t(`${i18nPrefix}.outputVars.files.title`)}
             />
+            <VarItem
+                name= 'metadata'
+                type= 'object'
+                description={t(`${i18nPrefix}.outputVars.metadata`)}
+            />
+            <VarItem
+              name='objectsXX'
+              type='Array[Object]'
+              description={t(`${i18nPrefix}.outputVars.output`)}
+              subItems={[
+                {
+                  name: 'content',
+                  type: 'string',
+                  description: t(`${i18nPrefix}.outputVars.content`),
+                },
+                // url, title, link like bing search reference result: link, link page title, link page icon
+                {
+                  name: 'title',
+                  type: 'string',
+                  description: t(`${i18nPrefix}.outputVars.title`),
+                },
+                {
+                  name: 'url',
+                  type: 'string',
+                  description: t(`${i18nPrefix}.outputVars.url`),
+                },
+                {
+                  name: 'icon',
+                  type: 'string',
+                  description: t(`${i18nPrefix}.outputVars.icon`),
+                },
+                {
+                  name: 'metadata',
+                  type: 'object',
+                  description: t(`${i18nPrefix}.outputVars.metadata`),
+                },
+              ]}
+            />
+            <VarItem
+              name='stringsXX'
+              type='Array[String]'
+              description={t(`${i18nPrefix}.outputVars.stringsXX`)}
+            />
           </>
         </OutputVars>
       </div>
