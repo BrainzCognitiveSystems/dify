@@ -14,11 +14,16 @@ from core.workflow.entities.variable_pool import ValueType, VariablePool
 from core.workflow.nodes.http_request.entities import HttpRequestNodeData
 from core.workflow.utils.variable_template_parser import VariableTemplateParser
 
-MAX_BINARY_SIZE = int(os.environ.get('HTTP_REQUEST_NODE_MAX_BINARY_SIZE', 1024 * 1024 * 10))  # 10MB
+def get_int(var: str, default: int) -> int:
+    s = os.environ.get(var)
+    if s is None:
+        return default
+    else :
+        return int(s.split(' ')[0])
+MAX_BINARY_SIZE = int(get_int('HTTP_REQUEST_NODE_MAX_BINARY_SIZE', 1024 * 1024 * 10))  # 10MB
 READABLE_MAX_BINARY_SIZE = f'{MAX_BINARY_SIZE / 1024 / 1024:.2f}MB'
-MAX_TEXT_SIZE = int(os.environ.get('HTTP_REQUEST_NODE_MAX_TEXT_SIZE', 1024 * 1024))  # 1MB
+MAX_TEXT_SIZE = int(get_int('HTTP_REQUEST_NODE_MAX_TEXT_SIZE', 1024 * 1024))  # 1MB
 READABLE_MAX_TEXT_SIZE = f'{MAX_TEXT_SIZE / 1024 / 1024:.2f}MB'
-
 
 class HttpExecutorResponse:
     headers: dict[str, str]

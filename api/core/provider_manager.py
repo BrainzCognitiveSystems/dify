@@ -122,12 +122,15 @@ class ProviderManager:
             provider_model_records = provider_name_to_provider_model_records_dict.get(provider_entity.provider, [])
 
             # Convert to custom configuration
-            custom_configuration = self._to_custom_configuration(
-                tenant_id,
-                provider_entity,
-                provider_records,
-                provider_model_records
-            )
+            try:
+                custom_configuration = self._to_custom_configuration(
+                    tenant_id,
+                    provider_entity,
+                    provider_records,
+                    provider_model_records
+                )
+            except:
+                continue
 
             # Convert to system configuration
             system_configuration = self._to_system_configuration(
