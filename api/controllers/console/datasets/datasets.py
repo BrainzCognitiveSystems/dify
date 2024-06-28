@@ -8,7 +8,7 @@ import services
 from controllers.console import api
 from controllers.console.apikey import api_key_fields, api_key_list
 from controllers.console.app.error import ProviderNotInitializeError
-from controllers.console.datasets.error import DatasetInUseError, DatasetNameDuplicateError
+from controllers.console.datasets.error import DatasetInUseError, DatasetNameDuplicateError, IndexingEstimateError
 from controllers.console.setup import setup_required
 from controllers.console.wraps import account_initialization_required
 from core.errors.error import LLMBadRequestError, ProviderTokenNotInitError
@@ -346,6 +346,8 @@ class DatasetIndexingEstimateApi(Resource):
                 "in the Settings -> Model Provider.")
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
+        except Exception as e:
+            raise IndexingEstimateError(str(e))
 
         return response, 200
 
@@ -498,7 +500,7 @@ class DatasetRetrievalSettingApi(Resource):
     def get(self):
         vector_type = current_app.config['VECTOR_STORE']
         match vector_type:
-            case VectorType.MILVUS | VectorType.RELYT | VectorType.PGVECTOR | VectorType.TIDB_VECTOR | VectorType.CHROMA | VectorType.TENCENT:
+            case VectorType.MILVUS | VectorType.RELYT | VectorType.PGVECTOR | VectorType.TIDB_VECTOR | VectorType.CHROMA | VectorType.TENCENT | VectorType.ORACLE:
                 return {
                     'retrieval_method': [
                         RetrievalMethod.SEMANTIC_SEARCH
@@ -522,7 +524,7 @@ class DatasetRetrievalSettingMockApi(Resource):
     @account_initialization_required
     def get(self, vector_type):
         match vector_type:
-            case VectorType.MILVUS | VectorType.RELYT | VectorType.PGVECTOR | VectorType.TIDB_VECTOR | VectorType.CHROMA | VectorType.TENCEN:
+            case VectorType.MILVUS | VectorType.RELYT | VectorType.PGVECTOR | VectorType.TIDB_VECTOR | VectorType.CHROMA | VectorType.TENCENT | VectorType.ORACLE:
                 return {
                     'retrieval_method': [
                         RetrievalMethod.SEMANTIC_SEARCH
