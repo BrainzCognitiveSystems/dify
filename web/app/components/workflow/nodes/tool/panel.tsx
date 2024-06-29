@@ -132,19 +132,14 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
               description={t(`${i18nPrefix}.outputVars.files.title`)}
             />
             <VarItem
-              name='json'
-              type='String'
-              description={t(`${i18nPrefix}.outputVars.json`)}
-            />
-            <VarItem
                 name= 'metadata'
                 type= 'object'
                 description={t(`${i18nPrefix}.outputVars.metadata`)}
             />
             <VarItem
-              name='objectsXX'
+              name='objects'
               type='Array[Object]'
-              description={t(`${i18nPrefix}.outputVars.output`)}
+              description={t(`${i18nPrefix}.outputVars.objects`)}
               subItems={[
                 {
                   name: 'content',
@@ -175,9 +170,9 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
               ]}
             />
             <VarItem
-              name='stringsXX'
-              type='Array[String]'
-              description={t(`${i18nPrefix}.outputVars.stringsXX`)}
+                name= 'jsons'
+                type= 'Array[String]'
+                description={t(`${i18nPrefix}.outputVars.jsons`)}
             />
           </>
         </OutputVars>

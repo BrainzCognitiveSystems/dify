@@ -23,6 +23,8 @@ class ToolFileMessageTransformer:
                 result.append(message)
             elif message.type == ToolInvokeMessage.MessageType.LINK:
                 result.append(message)
+            elif message.type == ToolInvokeMessage.MessageType.JSON:
+                result.append(message)
             elif message.type == ToolInvokeMessage.MessageType.IMAGE:
                 # try to download image
                 try:

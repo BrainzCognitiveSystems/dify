@@ -228,7 +228,7 @@ class ToolEngine:
                     mimetype = 'image/jpeg'
                     
                 result.append(ToolInvokeMessageBinary(
-                    mimetype=response.meta.get('mime_type', 'image/jpeg'),
+                    mimetype=mimetype,
                     url=response.message,
                     save_as=response.save_as,
                 ))

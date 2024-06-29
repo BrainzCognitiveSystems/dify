@@ -74,18 +74,16 @@ class ToolNode(BaseNode):
             )
 
         # convert tool messages
-        plain_text, files, json, result = self._convert_tool_messages(messages)
-        objXX = [ { "title": "test1", "url": "url1" }, { "title": "test2", "url": "url2" } ]
+        plain_text, files, objects, jsons = self._convert_tool_messages(messages)
 
         return NodeRunResult(
             status=WorkflowNodeExecutionStatus.SUCCEEDED,
             outputs={
                 'text': plain_text,
                 'files': files,
-                'json': json,
                 'metadata': { "toolinfo": tool_info},
-                'objectsXX': objXX,
-                'stringsXX': [ "AAA","BBB","CCC"],
+                'objects': objects,
+                'jsons': jsons,
             },
             metadata={
                 NodeRunMetadataKey.TOOL_INFO: tool_info
@@ -154,10 +152,10 @@ class ToolNode(BaseNode):
         # extract plain text and files
         files = self._extract_tool_response_binary(messages_)
         plain_text = self._extract_tool_response_text(messages_)
-        json = self._extract_tool_response_json(messages)
-        result = messages # DG for testing
+        objects = self._extract_tool_response_json(messages)
+        jsons = [ msg.message for msg in messages_ ]
 
-        return plain_text, files, json, result
+        return plain_text, files, objects, jsons
 
     def _extract_tool_response_binary(self, tool_response: list[ToolInvokeMessage]) -> list[FileVar]:
         """

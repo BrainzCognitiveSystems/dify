@@ -378,20 +378,16 @@ export const TOOL_OUTPUT_STRUCT: Var[] = [
     type: VarType.arrayFile,
   },
   {
-    variable: 'json',
-    type: VarType.string,
+    variable: 'objects',
+    type: VarType.arrayObject,
+  },
+  {
+    variable: 'jsons',
+    type: VarType.arrayString,
   },
   {
     variable: 'metadata',
     type: VarType.object,
-  },
-  {
-    variable: 'objectsXX',
-    type: VarType.arrayObject,
-  },
-  {
-    variable: 'stringsXX',
-    type: VarType.arrayString,
   },
 ]
 

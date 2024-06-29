@@ -64,12 +64,17 @@ class SearXNGSearchTool(BuiltinTool):
         
         search_results = SearXNGSearchResults(response.text).results[:topK]
 
+        results = []
+
         if result_type == 'objects':
             # transform dic to json string
-            return [ self.create_text_message(text=json.dumps(dic, indent=4)) for dic in search_results]
+            results = [ self.create_json_message(dic) for dic in search_results ]
 
-        if result_type == 'link':
-            results = []
+        elif result_type == 'json_txt':
+            # transform dic to json string
+            results = [ self.create_text_message(text=json.dumps(dic, indent=4)) for dic in search_results ]
+
+        elif result_type == 'link':
             if search_type == "page" or search_type == "news":
                 for r in search_results:
                     results.append(self.create_text_message(
@@ -86,13 +91,15 @@ class SearXNGSearchTool(BuiltinTool):
                         link=r.get(self.LINK_FILED[search_type], "")
                     ))
 
-            return results
         else:
             text = ''
             for i, r in enumerate(search_results):
                 text += f'{i+1}: {r["title"]} - {r.get(self.TEXT_FILED[search_type], "")}\n'
 
-            return self.create_text_message(text=self.summary(user_id=user_id, content=text))
+            results = [ self.create_text_message(text=self.summary(user_id=user_id, content=text)) ]
+
+        return results
+        
 
 
     def _invoke(self, user_id: str, tool_parameters: dict[str, Any]) -> ToolInvokeMessage | list[ToolInvokeMessage]:
