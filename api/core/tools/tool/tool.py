@@ -198,6 +198,7 @@ class Tool(BaseModel, ABC):
         # try parse tool parameters into the correct type
         tool_parameters = self._transform_tool_parameters_type(tool_parameters)
 
+        print(f"!!Tool {self.identity.name} is invoked with parameters: {tool_parameters}")
         result = self._invoke(
             user_id=user_id,
             tool_parameters=tool_parameters,

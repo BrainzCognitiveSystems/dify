@@ -406,6 +406,7 @@ class WorkflowEngineManager:
 
             # sign output files
             node_run_result.outputs = self.handle_special_values(node_run_result.outputs)
+            print('\n\n!!Outputs:', node_run_result.outputs)
         except Exception as e:
             raise WorkflowNodeRunFailedError(
                 node_id=node_instance.node_id,
@@ -923,21 +924,34 @@ class WorkflowEngineManager:
         if not value:
             return None
 
+        url_remote_to_preview = {}   
         new_value = value.copy()
         if isinstance(new_value, dict):
             for key, val in new_value.items():
                 if isinstance(val, FileVar):
-                    new_value[key] = val.to_dict()
+                    dic = val.to_dict()
+                    new_value[key] = dic
+                    url_remote_to_preview[dic['url_remote']] = dic['url']
                 elif isinstance(val, list):
                     new_val = []
                     for v in val:
                         if isinstance(v, FileVar):
-                            new_val.append(v.to_dict())
+                            dic = v.to_dict()
+                            new_val.append(dic)
+                            url_remote_to_preview[dic['remote_url']] = dic['url']
                         else:
                             new_val.append(v)
 
                     new_value[key] = new_val
-
+            if url_remote_to_preview:
+                new_value['url_remote_to_preview'] = url_remote_to_preview
+                print('\n\n!!!url_remote_to_preview:', url_remote_to_preview)
+                objects = new_value.get('objects')
+                if objects:
+                    for obj in objects:
+                        remote_url = obj.get('_file__remote_url') 
+                        if remote_url:
+                            obj['_url_preview'] = url_remote_to_preview.get(remote_url,"")
         return new_value
 
     def _mapping_user_inputs_to_variable_pool(self, 

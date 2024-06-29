@@ -150,9 +150,15 @@ class ToolNode(BaseNode):
             conversation_id=None,
         )
         # extract plain text and files
+        objects = self._extract_tool_response_json(messages_)
+        # for message in messages_ if message.type == ToolInvokeMessage.MessageType.JSON:
+        #     img = message.message.get('_image')
+        #     if img:
+        #         messages_.append()
+
         files = self._extract_tool_response_binary(messages_)
+        print('!!files:', files)
         plain_text = self._extract_tool_response_text(messages_)
-        objects = self._extract_tool_response_json(messages)
         jsons = [ msg.message for msg in messages_ ]
 
         return plain_text, files, objects, jsons

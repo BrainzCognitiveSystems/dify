@@ -64,17 +64,23 @@ class ToolEngine:
                 tool_inputs=tool_parameters
             )
 
-            meta, response = ToolEngine._invoke(tool, tool_parameters, user_id)
-            response = ToolFileMessageTransformer.transform_tool_invoke_messages(
-                messages=response, 
+            meta, messages = ToolEngine._invoke(tool, tool_parameters, user_id)
+
+            print(f"!!ToolEngine.agent_invoke 1 : before transform_tool_invoke_messages") 
+            messages = ToolFileMessageTransformer.transform_tool_invoke_messages(
+                messages=messages, 
                 user_id=user_id, 
-                tenant_id=tenant_id, 
+                tenant_id=tenant_id,
                 conversation_id=message.conversation_id
             )
 
+            print(f"!!ToolEngine.agent_invoke 2") 
+
             # extract binary data from tool invoke message
-            binary_files = ToolEngine._extract_tool_response_binary(response)
+            binary_files = ToolEngine._extract_tool_response_binary(messages)
+            
             # create message file
+            print(f"!!ToolEngine.agent_invoke 3") 
             message_files = ToolEngine._create_message_files(
                 tool_messages=binary_files,
                 agent_message=message,
@@ -82,7 +88,8 @@ class ToolEngine:
                 user_id=user_id
             )
 
-            plain_text = ToolEngine._convert_tool_response_to_str(response)
+            print(f"!!ToolEngine.agent_invoke 4") 
+            plain_text = ToolEngine._convert_tool_response_to_str(messages)
 
             # hit the callback handler
             agent_tool_callback.on_tool_end(
@@ -94,6 +101,7 @@ class ToolEngine:
             )
 
             # transform tool invoke message to get LLM friendly message
+            print(f"!!ToolEngine.agent_invoke 90")
             return plain_text, message_files, meta
         except ToolProviderCredentialValidationError as e:
             error_response = "Please check your tool provider credentials"
@@ -120,6 +128,7 @@ class ToolEngine:
             error_response = f"unknown error: {e}"
             agent_tool_callback.on_tool_error(e)
 
+        print(f"!!ToolEngine.agent_invoke --99")
         return error_response, [], ToolInvokeMeta.error_instance(error_response)
 
     @staticmethod
@@ -141,9 +150,11 @@ class ToolEngine:
             if isinstance(tool, WorkflowTool):
                 tool.workflow_call_depth = workflow_call_depth + 1
 
+            print("!!ToolEngine.workflow_invoke 1")
             response = tool.invoke(user_id, tool_parameters)
 
             # hit the callback handler
+            print("!!ToolEngine.workflow_invoke 2")
             workflow_tool_callback.on_tool_end(
                 tool_name=tool.identity.name,
                 tool_inputs=tool_parameters,
@@ -226,7 +237,7 @@ class ToolEngine:
                 
                 if not mimetype:
                     mimetype = 'image/jpeg'
-                    
+                print(f"!!_extract_tool_response_binary::append image '{response.message}'")   
                 result.append(ToolInvokeMessageBinary(
                     mimetype=mimetype,
                     url=response.message,

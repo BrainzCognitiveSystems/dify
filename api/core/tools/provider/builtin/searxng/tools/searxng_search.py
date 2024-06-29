@@ -68,7 +68,15 @@ class SearXNGSearchTool(BuiltinTool):
 
         if result_type == 'objects':
             # transform dic to json string
-            results = [ self.create_json_message(dic) for dic in search_results ]
+            for i, obj in enumerate(search_results):
+                for tag in ['image', 'video']:
+                    fld = self.LINK_FILED[tag]
+                    ref = obj.get(fld)
+                    if ref:
+                        print(f'!!object included a {tag} : {ref}')
+                        # ref="http://hdqwalls.com/wallpapers/eiffel-tower-in-paris-t1.jpg"
+                        obj[f'_{tag}'] = f"{fld}:{ref}"
+                    results.append(self.create_json_message(obj))
 
         elif result_type == 'json_txt':
             # transform dic to json string
@@ -122,9 +130,9 @@ class SearXNGSearchTool(BuiltinTool):
         if not query:
             return self.create_text_message('Please input query')
                 
-        num_results = min(tool_parameters.get('num_results', 5), 20)
-        search_type = tool_parameters.get('search_type', 'page') or 'page'
-        result_type = tool_parameters.get('result_type', 'text') or 'text'
+        num_results = min(tool_parameters.get('num_results', 5), 50)
+        search_type = tool_parameters.get('search_type') or 'page'
+        result_type = tool_parameters.get('result_type') or 'text'
 
         return self._invoke_query(
             user_id=user_id, 

@@ -24,27 +24,41 @@ class ToolFileMessageTransformer:
             elif message.type == ToolInvokeMessage.MessageType.LINK:
                 result.append(message)
             elif message.type == ToolInvokeMessage.MessageType.JSON:
+                img_tag = message.message.get('_image')
+                if img_tag:
+                    img_url = img_tag.split(':', 1)[1]
+                    msg_img = ToolInvokeMessage(type=ToolInvokeMessage.MessageType.IMAGE, message=img_url)
+                    msg_img = ToolFileMessageTransformer.transform_tool_invoke_messages([msg_img], user_id, tenant_id, conversation_id)[0]
+                    result.append(msg_img)
+                    message.message['_file__remote_url'] = msg_img.message
                 result.append(message)
             elif message.type == ToolInvokeMessage.MessageType.IMAGE:
                 # try to download image
-                try:
-                    file = ToolFileManager.create_file_by_url(
-                        user_id=user_id, 
-                        tenant_id=tenant_id,
-                        conversation_id=conversation_id,
-                        file_url=message.message
-                    )
-                    
-                    url = f'/files/tools/{file.id}{guess_extension(file.mimetype) or ".png"}'
+                file_url1=message.message
+                file_url2="https:"+file_url1[5:] if file_url1.startswith('http:') else "http:"+file_url1[6:]
+                success = False
+                for file_url in [file_url1, file_url2]:
+                    try:
+                        file = ToolFileManager.create_file_by_url(
+                            user_id=user_id,
+                            tenant_id=tenant_id,
+                            conversation_id=conversation_id,
+                            file_url=file_url
+                        )
 
-                    result.append(ToolInvokeMessage(
-                        type=ToolInvokeMessage.MessageType.IMAGE_LINK,
-                        message=url,
-                        save_as=message.save_as,
-                        meta=message.meta.copy() if message.meta is not None else {},
-                    ))
-                except Exception as e:
-                    logger.exception(e)
+                        url = cls.get_tool_file_url(file.id, guess_extension(file.mimetype))
+
+                        result.append(ToolInvokeMessage(
+                            type=ToolInvokeMessage.MessageType.IMAGE_LINK,
+                            message=url,
+                            save_as=message.save_as,
+                            meta=message.meta.copy() if message.meta is not None else {},
+                        ))
+                        success = True
+                        break
+                    except Exception as e:
+                        logger.exception(e)
+                if not success:
                     result.append(ToolInvokeMessage(
                         type=ToolInvokeMessage.MessageType.TEXT,
                         message=f"Failed to download image: {message.message}, you can try to download it yourself.",
