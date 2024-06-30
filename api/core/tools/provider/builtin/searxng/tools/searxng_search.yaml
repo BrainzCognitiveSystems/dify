@@ -52,9 +52,27 @@ parameters:
       - value: Video
         label:
           en_US: Video
+      - value: Music
+        label:
+          en_US: Music
       - value: File
         label:
           en_US: File
+      - value: Map
+        label:
+          en_US: Map
+      - value: Patent
+        label:
+          en_US: File
+      - value: Code
+        label:
+          en_US: Code
+      - value: Science
+        label:
+          en_US: Science
+      - value: Dictionary
+        label:
+          en_US: Dictionary
     form: form
   - name: num_results
     type: number
@@ -73,26 +91,21 @@ parameters:
     type: select
     required: true
     label:
-      en_US: result type
-      zh_Hans: 结果类型
-      pt_BR: result type
+      en_US: result format
     human_description:
-      en_US: return a list of links or texts.
-      zh_Hans: 返回一个连接列表还是纯文本内容。
-      pt_BR: return a list of links or texts.
+      en_US: return a list of Records or Json texts or Links or Texts.
     default: text
     options:
-      - value: link
-        label:
-          en_US: Link
-          zh_Hans: 链接
-          pt_BR: Link
-      - value: text
-        label:
-          en_US: Text
-          zh_Hans: 文本
-          pt_BR: Text
       - value: objects
         label:
           en_US: Objects
+      - value: json_txt
+        label:
+          en_US: Json text
+      - value: link
+        label:
+          en_US: Link
+      - value: text
+        label:
+          en_US: Text
     form: form

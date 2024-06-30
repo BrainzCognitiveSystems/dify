@@ -151,17 +151,18 @@ class ToolEngine:
                 tool.workflow_call_depth = workflow_call_depth + 1
 
             print("!!ToolEngine.workflow_invoke 1")
-            response = tool.invoke(user_id, tool_parameters)
+            response, res_meta = tool.invoke(user_id, tool_parameters)
 
             # hit the callback handler
             print("!!ToolEngine.workflow_invoke 2")
+            print(f"!!ToolEngine._invoke:\n\tres_meta={res_meta}")
             workflow_tool_callback.on_tool_end(
                 tool_name=tool.identity.name,
                 tool_inputs=tool_parameters,
                 tool_outputs=response,
             )
 
-            return response
+            return response, res_meta
         except Exception as e:
             workflow_tool_callback.on_tool_error(e)
             raise e
@@ -181,15 +182,17 @@ class ToolEngine:
             'tool_icon': tool.identity.icon
         })
         try:
-            response = tool.invoke(user_id, tool_parameters)
+            res_meta={}
+            response, res_meta = tool.invoke(user_id, tool_parameters)
         except Exception as e:
             meta.error = str(e)
             raise ToolEngineInvokeError(meta)
         finally:
             ended_at = datetime.now(timezone.utc)
             meta.time_cost = (ended_at - started_at).total_seconds()
+            print(f"!!ToolEngine._invoke:\n\tmeta={meta}\n\tres_meta={res_meta}")
 
-        return meta, response
+        return meta, response, res_meta
     
     @staticmethod
     def _convert_tool_response_to_str(tool_response: list[ToolInvokeMessage]) -> str:

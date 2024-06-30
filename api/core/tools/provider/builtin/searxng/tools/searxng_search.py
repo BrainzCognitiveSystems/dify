@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any
 
 import requests
@@ -24,19 +25,33 @@ class SearXNGSearchTool(BuiltinTool):
     Tool for performing a search using SearXNG engine.
     """
 
+    # the type of Items that we are searching for
     SEARCH_TYPE: dict[str, str] = {
         "page": "general",
         "news": "news",
         "image": "images",
         "video": "videos",
-        "file": "files"
+        "file": "files",
+        "map": "maps",
+        "music": "music",
+        "code": "it",
+        "science": "science",
+        "patent": "patents",
+        # "social": "social",
+        # "code": "code",
+        "dictionary": "dictionary",
+        # "wikidata": "wikidata",
+        # "torrent": "torrent",
+        # "reddit": "reddit",
+        # "github": "github",
+        # "wikipedia": "wikipedia",
     }
     LINK_FILED: dict[str, str] = {
         "page": "url",
         "news": "url",
         "image": "img_src",
         "video": "iframe_src",
-        "file": "magnetlink"
+        "file": "magnetlink",
     }
     TEXT_FILED: dict[str, str] = {
         "page": "content",
@@ -45,6 +60,13 @@ class SearXNGSearchTool(BuiltinTool):
         "video": "iframe_src",
         "file": "magnetlink"
     }
+    ## https://docs.searxng.org/user/configured_engines.html
+    RESULT_TYPE_BANGS: dict[str, str] = {
+        "json": "json_txt",
+        "text": "text",
+        "link": "link",
+        "object": "objects"
+    }
 
     def _invoke_query(self, user_id: str, host: str, query: str, search_type: str, result_type: str, topK: int = 5) -> list[dict]:
         """Run query and return the results."""
@@ -52,31 +74,65 @@ class SearXNGSearchTool(BuiltinTool):
         search_type = search_type.lower()
         if search_type not in self.SEARCH_TYPE.keys():
             search_type= "page"
+        categories = self.SEARCH_TYPE[search_type]
+
+        done=False
+        for tag, bang in self.SEARCH_TYPE.items():
+            tgts = [f"!{bang}"]
+            if bang.endswith('s'):
+                tgts.append(f"!{bang[:-1]}")
+            if not bang.endswith('s'):
+                tgts.append(f"!{bang}s")
+            print(f'!!search_type bang={bang} tgts={tgts}')
+            for tgt in tgts:
+                if tgt in query:
+                    categories = bang
+                    query = query.replace(tgt, "")
+                    done=True
+                    break
+            if done:
+                break
+
+        for bang, res in self.RESULT_TYPE_BANGS.items():
+            if f"!{res}" in query:
+                result_type = res
+                query = query.replace(f"!{res}", "")
+                break
+
+        # find regex like "!n=12"
+        m = re.search(r"!n=(\d+)", query)
+        if m:
+            topK = int(m.group(1))
+            query = query.replace(m.group(0), "")
+        
+        query = query.replace("  ", " ").strip()
 
         response = requests.get(host, params={
             "q": query, 
             "format": "json", 
-            "categories": self.SEARCH_TYPE[search_type]
+            "categories": categories,
         })
 
         if response.status_code != 200:
             raise Exception(f'Error {response.status_code}: {response.text}')
         
         search_results = SearXNGSearchResults(response.text).results[:topK]
-
+        print(f'!!search_results nbr={len(search_results)}')
         results = []
 
         if result_type == 'objects':
             # transform dic to json string
             for i, obj in enumerate(search_results):
-                for tag in ['image', 'video']:
+                print(f'!!object answer #{i+1}')
+                for tag in ['image', 'video', 'file']:
                     fld = self.LINK_FILED[tag]
                     ref = obj.get(fld)
                     if ref:
-                        print(f'!!object included a {tag} : {ref}')
+                        print(f'!! -> the answer includes a {tag}({fld}) : "{ref}"')
                         # ref="http://hdqwalls.com/wallpapers/eiffel-tower-in-paris-t1.jpg"
                         obj[f'_{tag}'] = f"{fld}:{ref}"
-                    results.append(self.create_json_message(obj))
+                obj[f'_answer_no'] = i+1
+                results.append(self.create_json_message(obj))
 
         elif result_type == 'json_txt':
             # transform dic to json string
@@ -106,7 +162,8 @@ class SearXNGSearchTool(BuiltinTool):
 
             results = [ self.create_text_message(text=self.summary(user_id=user_id, content=text)) ]
 
-        return results
+        print(f"\n!!SearXNG._invoke_query: nbr={len(results)}")
+        return results, {'search_type': categories, 'result_type': result_type, 'query': query, 'topK': topK }
         
 
 

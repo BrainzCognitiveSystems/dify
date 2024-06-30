@@ -199,15 +199,20 @@ class Tool(BaseModel, ABC):
         tool_parameters = self._transform_tool_parameters_type(tool_parameters)
 
         print(f"!!Tool {self.identity.name} is invoked with parameters: {tool_parameters}")
-        result = self._invoke(
+        composite_result = self._invoke(
             user_id=user_id,
             tool_parameters=tool_parameters,
         )
+        if not isinstance(composite_result, tuple):
+            composite_result = (composite_result, {})
+
+        result = composite_result[0]
+        res_meta = composite_result[1]
 
         if not isinstance(result, list):
             result = [result]
 
-        return result
+        return result, res_meta
 
     def _transform_tool_parameters_type(self, tool_parameters: dict[str, Any]) -> dict[str, Any]:
         """

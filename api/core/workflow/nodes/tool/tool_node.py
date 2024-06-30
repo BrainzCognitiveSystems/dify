@@ -15,6 +15,8 @@ from core.workflow.nodes.tool.entities import ToolNodeData
 from core.workflow.utils.variable_template_parser import VariableTemplateParser
 from models.workflow import WorkflowNodeExecutionStatus
 
+# import json
+
 
 class ToolNode(BaseNode):
     """
@@ -55,7 +57,8 @@ class ToolNode(BaseNode):
         parameters = self._generate_parameters(variable_pool, node_data, tool_runtime)
 
         try:
-            messages = ToolEngine.workflow_invoke(
+            res_meta={}
+            messages, res_meta = ToolEngine.workflow_invoke(
                 tool=tool_runtime,
                 tool_parameters=parameters,
                 user_id=self.user_id,
@@ -75,13 +78,13 @@ class ToolNode(BaseNode):
 
         # convert tool messages
         plain_text, files, objects, jsons = self._convert_tool_messages(messages)
-
+        res_meta['tool_info'] = tool_info
         return NodeRunResult(
             status=WorkflowNodeExecutionStatus.SUCCEEDED,
             outputs={
                 'text': plain_text,
                 'files': files,
-                'metadata': { "toolinfo": tool_info},
+                'metadata': res_meta,
                 'objects': objects,
                 'jsons': jsons,
             },
@@ -143,21 +146,26 @@ class ToolNode(BaseNode):
         Convert ToolInvokeMessages into tuple[plain_text, files]
         """
         # transform message and handle file storage
+        print(f'\n\n===\n!!ToolNode._convert_tool_messages: messages Nbr={len(messages)}')
         messages_ = ToolFileMessageTransformer.transform_tool_invoke_messages(
             messages=messages,
             user_id=self.user_id,
             tenant_id=self.tenant_id,
             conversation_id=None,
         )
+        print(f'!!ToolNode._convert_tool_messages: messages_ Nbr={len(messages_)}')
         # extract plain text and files
         objects = self._extract_tool_response_json(messages_)
+        print(f'!!ToolNode._convert_tool_messages: objects Nbr={len(objects)}')
         # for message in messages_ if message.type == ToolInvokeMessage.MessageType.JSON:
         #     img = message.message.get('_image')
         #     if img:
         #         messages_.append()
 
         files = self._extract_tool_response_binary(messages_)
-        print('!!files:', files)
+        print('!!files:')
+        for f in files:
+            print(f'!!file: {f.filename}\n\t{f.url}')
         plain_text = self._extract_tool_response_text(messages_)
         jsons = [ msg.message for msg in messages_ ]
 
