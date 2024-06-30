@@ -34,6 +34,9 @@ parameters:
       pt_BR: search type for page, news or image.
     default: Page
     options:
+      - value: Guess 
+        label:
+          en_US: Guess from query
       - value: Page
         label:
           en_US: Page

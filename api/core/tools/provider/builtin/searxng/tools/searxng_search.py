@@ -46,6 +46,22 @@ class SearXNGSearchTool(BuiltinTool):
         # "github": "github",
         # "wikipedia": "wikipedia",
     }
+    CATEGORY_ALIASES: dict[str, str] = {
+        "image": "images",
+        "picts": "images",
+        "picture": "images",
+        "pictures": "images",
+        "video": "videos",
+        "vidéo": "videos",
+        "vidéos": "videos",
+        "file": "files",
+        "map": "maps",
+        "musics": "music",
+        "code": "it",
+        "arxiv": "science",
+        "patent": "patents",
+        "dictionary": "dictionary",
+    }
     LINK_FILED: dict[str, str] = {
         "page": "url",
         "news": "url",
@@ -72,32 +88,26 @@ class SearXNGSearchTool(BuiltinTool):
         """Run query and return the results."""
 
         search_type = search_type.lower()
-        if search_type not in self.SEARCH_TYPE.keys():
-            search_type= "page"
-        categories = self.SEARCH_TYPE[search_type]
+        categories = self.SEARCH_TYPE.get(search_type, "general")
 
-        done=False
-        for tag, bang in self.SEARCH_TYPE.items():
-            tgts = [f"!{bang}"]
-            if bang.endswith('s'):
-                tgts.append(f"!{bang[:-1]}")
-            if not bang.endswith('s'):
-                tgts.append(f"!{bang}s")
-            print(f'!!search_type bang={bang} tgts={tgts}')
-            for tgt in tgts:
-                if tgt in query:
-                    categories = bang
-                    query = query.replace(tgt, "")
-                    done=True
-                    break
-            if done:
+        bang_to_category = { v: v for k, v in self.SEARCH_TYPE.items()}
+        for bang, category in self.CATEGORY_ALIASES.items():
+            bang_to_category[bang] = category
+
+        for bang, category in bang_to_category.items():
+            tgt = f"!{bang}"
+            if tgt in query:
+                categories = category
+                query = query.replace(tgt, category)
                 break
+        print(f'!!categories={categories}')
 
         for bang, res in self.RESULT_TYPE_BANGS.items():
             if f"!{res}" in query:
                 result_type = res
                 query = query.replace(f"!{res}", "")
                 break
+        print(f'!!result_type={result_type}')
 
         # find regex like "!n=12"
         m = re.search(r"!n=(\d+)", query)
@@ -118,6 +128,15 @@ class SearXNGSearchTool(BuiltinTool):
         
         search_results = SearXNGSearchResults(response.text).results[:topK]
         print(f'!!search_results nbr={len(search_results)}')
+
+        for sr in search_results:
+            try:
+                tgt = "http://dx.doi.org/https://doi.org/1"
+                if sr['url'].startswith(tgt):
+                    sr['url'] = sr['url'].replace(tgt, "https://doi.org/")
+            except:
+                pass
+
         results = []
 
         if result_type == 'objects':
