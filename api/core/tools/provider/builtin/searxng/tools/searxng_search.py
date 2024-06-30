@@ -134,8 +134,18 @@ class SearXNGSearchTool(BuiltinTool):
                 tgt = "http://dx.doi.org/https://doi.org/1"
                 if sr['url'].startswith(tgt):
                     sr['url'] = sr['url'].replace(tgt, "https://doi.org/")
-            except:
-                pass
+            except: pass
+            try:
+                s = sr["publishedDate"].replace('T',' ').split(' ',1) # ex: "2024-06-21T12:20:00.736459Zxxxxx",
+                if len(s)==1:
+                    sr["publishedDate_h"] = s[0]
+                else:
+                    s1 = s[1][:8]
+                    if s1=="00:00:00":
+                        sr["publishedDate_h"] = s[0]
+                    else:
+                        sr["publishedDate_h"] = s[0] + " " + s1
+            except: pass
 
         results = []
 
