@@ -7,6 +7,57 @@ import requests
 from core.tools.entities.tool_entities import ToolInvokeMessage
 from core.tools.tool.builtin_tool import BuiltinTool
 
+def url_detect_file_type(url):
+    print(f'!!url_detect_file_type: url={url}')
+    properties = {}
+    try:
+        # find regex like "https://www.youtube.com/watch?v=xxxxx"
+        m = re.search(r"http[s]://www.youtube.com/watch\?v=([\-\w]+)", url)
+
+        if not m:
+            # find regex like "https://youtu.be/hKa3EZqofNo"
+            m = re.search(r"http[s]://youtu.be/([\-\w]+)", url)
+
+        print(f'!!m={m}')
+
+        if m:
+            properties["url_type"] = "video"
+            properties["url_source"] = "youtube"
+            properties["doc_id"] = m.group(1)
+
+        if not m:
+            # find regex like https://www.youtube.com/channel/UCF9IOB2TExg3QIBupFtBDxg
+            m = re.search(r"http[s]://www.youtube.com/channel/(\w+)", url)
+            if m:
+                properties["url_type"] = "channel"
+                properties["url_source"] = "youtube"
+                properties["doc_id"] = m.group(1)
+
+        if not m:
+            # find regex like "https://odysee.com/@LaUneTV2:c/LeDebatdeNatacha(30)_JIM_BLET:d"
+            # https://odysee.com/@QuadrillageTraduction:1/trim.A98CCED0-E8A4-40CB-89C5-BC19ABADB6D4:4
+            m = re.search(r"http[s]://odysee.com/@(\w+:\w)/(\w+:\w)", url)
+            if m:
+                properties["url_type"] = "video"
+                properties["url_source"] = "odysee"
+                properties["url_channel"] = m.group(1)
+                properties["doc_id"] = m.group(2)
+
+        if not m:
+            # find regex like https://odysee.com/@QuadrillageTraduction:1
+            m = re.search(r"http[s]://odysee.com/@(\w+:\w)", url)
+            if m:
+                properties["url_type"] = "channel"
+                properties["url_source"] = "odysee"
+                properties["url_channel"] = m.group(1)
+        
+        if not m:
+            tgt = "http://dx.doi.org/https://doi.org/1"
+            if url.startswith(tgt):
+                properties['url'] = url.replace(tgt, "https://doi.org/")
+    except: pass
+    print('')
+    return properties
 
 class SearXNGSearchResults(dict):
     """Wrapper for search results."""
@@ -84,6 +135,7 @@ class SearXNGSearchTool(BuiltinTool):
         "object": "objects"
     }
 
+
     def _invoke_query(self, user_id: str, host: str, query: str, search_type: str, result_type: str, topK: int = 5) -> list[dict]:
         """Run query and return the results."""
 
@@ -150,6 +202,8 @@ class SearXNGSearchTool(BuiltinTool):
             params_internal["sortBy"] = m.group(1)
             query = query.replace(m.group(0), "")
 
+        params_internal["get_transcripts"] = False
+
         query = query.replace("  ", " ").strip()
         params["q"] = query
 
@@ -168,12 +222,8 @@ class SearXNGSearchTool(BuiltinTool):
 
         # search_results = search_results[:topK]
 
-        for sr in search_results:
-            try:
-                tgt = "http://dx.doi.org/https://doi.org/1"
-                if sr['url'].startswith(tgt):
-                    sr['url'] = sr['url'].replace(tgt, "https://doi.org/")
-            except: pass
+        for sr in search_results:               
+            url = sr.get("url", "")
             try:
                 s = sr["publishedDate"].replace('T',' ').split(' ',1) # ex: "2024-06-21T12:20:00.736459Zxxxxx",
                 if len(s)==1:
@@ -195,6 +245,15 @@ class SearXNGSearchTool(BuiltinTool):
                 if "publisheddate" in params.get("mandatory_fields","").lower():
                     if not obj.get("publishedDate"):
                         continue
+
+                url = obj.get("url", "")
+                properties = url_detect_file_type(url)
+                if properties:
+                    obj.update(properties)
+                    # if params_internal["get_transcripts"] and properties.get("url_type")=="video" and properties.get("url_source")=="youtube":
+                    #     transcripts = Youtube_get_transcripts(properties["doc_id"])
+                    #     obj["transcripts"] = transcripts
+
                 for tag in ['image', 'video', 'file']:
                     fld = self.LINK_FILED[tag]
                     ref = obj.get(fld)

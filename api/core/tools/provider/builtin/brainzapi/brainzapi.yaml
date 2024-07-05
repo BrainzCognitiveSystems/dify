@@ -1,0 +1,14 @@
+identity:
+  author: BrainzApi
+  name: brainzapi
+  label:
+    en_US: BrainzApi
+  description:
+    en_US: BrainzApi
+  icon: icon.svg
+  tags:
+    - search
+    - business
+    - news
+    - productivity
+
