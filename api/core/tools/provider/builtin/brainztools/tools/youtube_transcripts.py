@@ -89,7 +89,7 @@ def Youtube_get_transcripts(video_id, languages=["en", "fr"]):
     return transcripts
 
 
-class YoutubeTranscriptsToolBRZ(BuiltinTool):
+class YoutubeTranscripts_BrainzTools(BuiltinTool):
 
     def get_params(self, video_id: str, language: str, **kwargs: Any) -> dict[str, str]:
         languages = language.split(',') if language else ["en"]

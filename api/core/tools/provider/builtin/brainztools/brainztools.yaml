@@ -1,10 +1,10 @@
 identity:
-  author: BrainzApi
-  name: brainzapi
+  author: BrainzTools
+  name: brainztools
   label:
-    en_US: BrainzApi
+    en_US: BrainzTools
   description:
-    en_US: BrainzApi
+    en_US: BrainzTools
   icon: icon.svg
   tags:
     - search

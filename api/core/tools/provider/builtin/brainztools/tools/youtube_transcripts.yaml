@@ -1,8 +1,8 @@
 identity:
-  name: youtube_transcripts_brainzapi
-  author: BrainzApi
+  name: youtube_transcripts_BrainzTools
+  author: BrainzTools
   label:
-    en_US: YouTube Transcripts BRZ
+    en_US: YouTube Transcripts BrainzTools
 description:
   human:
     en_US: A tool to retrieve transcripts from the specific YouTube video.
@@ -27,7 +27,6 @@ parameters:
       en_US: language
       zh_Hans: 语言
     human_description:
-      en_US: Used to set the language for transcripts. The default value is "en". You can find all supported languages in SearchApi documentation.
-      zh_Hans: 用于设置成绩单的语言。默认值为“en”。您可以在 SearchApi 文档中找到所有支持的语言。
+      en_US: Used to set the language for transcripts. The default value is "en".
     llm_description: Used to set the language for transcripts.
     form: llm
