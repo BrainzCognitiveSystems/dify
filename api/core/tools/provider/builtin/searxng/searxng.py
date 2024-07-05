@@ -7,12 +7,16 @@ from core.tools.provider.builtin_tool_provider import BuiltinToolProviderControl
 
 class SearXNGProvider(BuiltinToolProviderController):
     def _validate_credentials(self, credentials: dict[str, Any]) -> None:
+        print(f"\n!!!  SearXNGProvider._validate_credentials (1): {credentials}")
+        return # DG shortcircuit !!!
         try:
-            SearXNGSearchTool().fork_tool_runtime(
+            tool = SearXNGSearchTool().fork_tool_runtime(
                 runtime={
                     "credentials": credentials,
                 }
-            ).invoke(
+            )
+            print(f"\n!!!  SearXNGProvider._validate_credentials (2): tool={tool}")
+            tool.invoke(
                 user_id='',
                 tool_parameters={
                     "query": "SearXNG",
@@ -22,4 +26,5 @@ class SearXNGProvider(BuiltinToolProviderController):
                 },
             )
         except Exception as e:
+            print(f"\n!!!  SearXNGProvider._validate_credentials (3): error {e}")
             raise ToolProviderCredentialValidationError(str(e))

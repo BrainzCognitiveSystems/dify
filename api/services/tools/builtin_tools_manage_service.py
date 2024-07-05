@@ -73,6 +73,7 @@ class BuiltinToolManageService:
             update builtin tool provider
         """
         # get if the provider exists
+        print(f"\n!!!update_builtin_tool_provider: {provider_name}\n\tcredentials={credentials}")
         provider: BuiltinToolProvider = db.session.query(BuiltinToolProvider).filter(
             BuiltinToolProvider.tenant_id == tenant_id,
             BuiltinToolProvider.provider == provider_name,
@@ -93,10 +94,13 @@ class BuiltinToolManageService:
                     if name in masked_credentials and value == masked_credentials[name]:
                         credentials[name] = original_credentials[name]
             # validate credentials
+            print(f"\n!!!  update_builtin_tool_provider.validate credentials: {credentials}")
             provider_controller.validate_credentials(credentials)
             # encrypt credentials
+            print(f"\n!!!  update_builtin_tool_provider.encrypt credentials: {credentials}")
             credentials = tool_configuration.encrypt_tool_credentials(credentials)
         except (ToolProviderNotFoundError, ToolNotFoundError, ToolProviderCredentialValidationError) as e:
+            print(f"\n!!!update_builtin_tool_provider: {e}")
             raise ValueError(str(e))
 
         if provider is None:

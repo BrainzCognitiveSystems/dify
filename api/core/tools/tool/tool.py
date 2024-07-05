@@ -69,6 +69,7 @@ class Tool(BaseModel, ABC):
             :param meta: the meta data of a tool call processing, tenant_id is required
             :return: the new tool
         """
+        print(f"!!Tool::fork_tool_runtime is forked with runtime: {runtime}")
         return self.__class__(
             identity=self.identity.model_copy() if self.identity else None,
             parameters=self.parameters.copy() if self.parameters else None,
@@ -192,13 +193,14 @@ class Tool(BaseModel, ABC):
 
     def invoke(self, user_id: str, tool_parameters: dict[str, Any]) -> list[ToolInvokeMessage]:
         # update tool_parameters
+        print(f"!!Tool {self.identity.name} is invoked with parameters: {tool_parameters}")
         if self.runtime.runtime_parameters:
             tool_parameters.update(self.runtime.runtime_parameters)
 
         # try parse tool parameters into the correct type
         tool_parameters = self._transform_tool_parameters_type(tool_parameters)
 
-        print(f"!!Tool {self.identity.name} is invoked with parameters: {tool_parameters}")
+        print(f"!!  (2) Tool {self.identity.name} is invoked with parameters: {tool_parameters}")
         composite_result = self._invoke(
             user_id=user_id,
             tool_parameters=tool_parameters,

@@ -115,19 +115,58 @@ class SearXNGSearchTool(BuiltinTool):
             topK = int(m.group(1))
             query = query.replace(m.group(0), "")
         
-        query = query.replace("  ", " ").strip()
-
-        response = requests.get(host, params={
-            "q": query, 
+        params={
             "format": "json", 
             "categories": categories,
-        })
+        }
+
+
+        # time_range=[day, week, month, year]
+        # find regex like "!tr=day"
+        m = re.search(r"!(?:time_range|tr)=(day|week|month|year)", query)
+        if m:
+            params["time_range"] = m.group(1)
+            query = query.replace(m.group(0), "")
+
+        # language=[fr, en, es, ...]
+        # find regex like "!lang=fr"
+        m = re.search(r"!(?:language|lang|lg)=(\w+)", query)
+        if m:
+            params["language"] = m.group(1)
+            query = query.replace(m.group(0), "")
+
+        # mandatory_fields=[title, url, content, publishedDate...]
+        # find regex like "!mf=title,url"
+        m = re.search(r"!(?:mandatory_fields|mf)=(\w+(?:,\w+)*)", query)
+        if m:
+            params["mandatory_fields"] = m.group(1)
+            query = query.replace(m.group(0), "")
+
+        params_internal={}
+        # sortBy=[relevance, date]
+        # find regex like "!sort=relevance"
+        m = re.search(r"!(?:sort|sortBy)=(relevance|date)", query)
+        if m:
+            params_internal["sortBy"] = m.group(1)
+            query = query.replace(m.group(0), "")
+
+        query = query.replace("  ", " ").strip()
+        params["q"] = query
+
+        response = requests.get(host, params=params)
 
         if response.status_code != 200:
             raise Exception(f'Error {response.status_code}: {response.text}')
         
-        search_results = SearXNGSearchResults(response.text).results[:topK]
-        print(f'!!search_results nbr={len(search_results)}')
+        search_results = SearXNGSearchResults(response.text).results
+        results_nbr = len(search_results)
+        print(f'!!search_results nbr={results_nbr}')
+
+        if True or "date" in params_internal.get("sortBy","").lower():
+            # search_results = sorted(search_results, key=lambda x: x.get("publishedDate", "0000-00-00T00:00:00Z"), reverse=True)
+            pass
+
+        # search_results = search_results[:topK]
 
         for sr in search_results:
             try:
@@ -153,6 +192,9 @@ class SearXNGSearchTool(BuiltinTool):
             # transform dic to json string
             for i, obj in enumerate(search_results):
                 print(f'!!object answer #{i+1}')
+                if "publisheddate" in params.get("mandatory_fields","").lower():
+                    if not obj.get("publishedDate"):
+                        continue
                 for tag in ['image', 'video', 'file']:
                     fld = self.LINK_FILED[tag]
                     ref = obj.get(fld)
@@ -162,12 +204,15 @@ class SearXNGSearchTool(BuiltinTool):
                         obj[f'_{tag}'] = f"{fld}:{ref}"
                 obj[f'_answer_no'] = i+1
                 results.append(self.create_json_message(obj))
+                if len(results) >= topK:
+                    break
 
         elif result_type == 'json_txt':
             # transform dic to json string
             results = [ self.create_text_message(text=json.dumps(dic, indent=4)) for dic in search_results ]
 
         elif result_type == 'link':
+            search_results = search_results[:topK]
             if search_type == "page" or search_type == "news":
                 for r in search_results:
                     results.append(self.create_text_message(
@@ -185,6 +230,7 @@ class SearXNGSearchTool(BuiltinTool):
                     ))
 
         else:
+            search_results = search_results[:topK]
             text = ''
             for i, r in enumerate(search_results):
                 text += f'{i+1}: {r["title"]} - {r.get(self.TEXT_FILED[search_type], "")}\n'
@@ -192,7 +238,8 @@ class SearXNGSearchTool(BuiltinTool):
             results = [ self.create_text_message(text=self.summary(user_id=user_id, content=text)) ]
 
         print(f"\n!!SearXNG._invoke_query: nbr={len(results)}")
-        return results, {'search_type': categories, 'result_type': result_type, 'query': query, 'topK': topK }
+        return results, {'search_type': categories, 'result_type': result_type, 'query': query, 'topK': topK,
+                         'results_nbr':results_nbr, "language":params.get("language",""), "time_range":params.get("time_range","") }
         
 
 

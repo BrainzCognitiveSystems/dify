@@ -26,6 +26,7 @@ class BuiltinToolProviderController(ToolProviderController):
         # load provider yaml
         provider = self.__class__.__module__.split('.')[-1]
         yaml_path = path.join(path.dirname(path.realpath(__file__)), 'builtin', provider, f'{provider}.yaml')
+        print(f"\n!!!BuiltinToolProviderController::__init__: yaml_path={yaml_path}")
         try:
             provider_yaml = load_yaml_file(yaml_path)
         except Exception as e:
@@ -57,8 +58,12 @@ class BuiltinToolProviderController(ToolProviderController):
         tools = []
         for tool_file in tool_files:
             # get tool name
+            if provider=='searxng' and tool_file=='searxng_search.yaml':
+                print(f"\n!!!BuiltinToolProviderController::_get_builtin_tools: tool_file={tool_file}")
             tool_name = tool_file.split(".")[0]
             tool = load_yaml_file(path.join(tool_path, tool_file))
+            if provider=='searxng' and tool_file=='searxng_search.yaml':
+                print(f"\n!!!BuiltinToolProviderController::_get_builtin_tools:\n\t tool={tool}")
 
             # get tool class, import the module
             assistant_tool_class = load_single_subclass_from_source(
@@ -66,8 +71,13 @@ class BuiltinToolProviderController(ToolProviderController):
                 script_path=path.join(path.dirname(path.realpath(__file__)),
                                        'builtin', provider, 'tools', f'{tool_name}.py'),
                 parent_type=BuiltinTool)
+            if provider=='searxng' and tool_file=='searxng_search.yaml':
+                print(f"\n!!!BuiltinToolProviderController::_get_builtin_tools: assistant_tool_class={assistant_tool_class}")
+                print(f"\n!!!BuiltinToolProviderController::_get_builtin_tools: provider={provider}")
             tool["identity"]["provider"] = provider
             tools.append(assistant_tool_class(**tool))
+            if provider=='searxng' and tool_file=='searxng_search.yaml':
+                print(f"\n!!!BuiltinToolProviderController::_get_builtin_tools: LOADED tool={tools[-1]}")
 
         self.tools = tools
         return tools
@@ -212,10 +222,12 @@ class BuiltinToolProviderController(ToolProviderController):
             :param tool_name: the name of the tool, defined in `get_tools`
             :param credentials: the credentials of the tool
         """
+        print(f"\n!!!BuiltinToolProviderController::validate_credentials: {credentials}")
         # validate credentials format
         self.validate_credentials_format(credentials)
 
         # validate credentials
+        print(f"\n!!!BuiltinToolProviderController::_validate_credentials: {credentials}")
         self._validate_credentials(credentials)
 
     @abstractmethod

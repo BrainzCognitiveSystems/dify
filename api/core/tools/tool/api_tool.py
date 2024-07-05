@@ -44,6 +44,7 @@ class ApiTool(Tool):
         """
             validate the credentials for Api tool
         """
+        print(f"!!!ApiTool.validate_credentials: credentials={credentials}, parameters={parameters}, format_only={format_only}")
         # assemble validate request and request parameters 
         headers = self.assembling_request(parameters)
 

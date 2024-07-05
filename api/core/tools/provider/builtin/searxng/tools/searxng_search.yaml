@@ -89,7 +89,7 @@ parameters:
     form: form
     default: 5
     min: 1
-    max: 20
+    max: 200
   - name: result_type
     type: select
     required: true
