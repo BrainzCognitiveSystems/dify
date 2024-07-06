@@ -128,6 +128,9 @@ class SearXNGSearchTool(BuiltinTool):
         "file": "magnetlink"
     }
     ## https://docs.searxng.org/user/configured_engines.html
+    # !yt:youtube ; !od:odysee ; !vm:vimeo ; !dm:dailymotion ; !ptb:peertube ; !ru:rumble !ppd:Piped(youtube proxy)
+    # !ddn: DuckDuckGo-news !brnews:BraveNews ; !gon:Google ; !yhn:Yahoo ; !senews:Seeker ; !qwn:Qwant ; !bin:Bing
+    # !news !ddn !brnews !gon !yhn !senews !qwn !bin:Bing
     RESULT_TYPE_BANGS: dict[str, str] = {
         "json": "json_txt",
         "text": "text",
@@ -217,7 +220,9 @@ class SearXNGSearchTool(BuiltinTool):
         print(f'!!search_results nbr={results_nbr}')
 
         if True or "date" in params_internal.get("sortBy","").lower():
-            # search_results = sorted(search_results, key=lambda x: x.get("publishedDate", "0000-00-00T00:00:00Z"), reverse=True)
+            dates = [x.get("publishedDate", "0000-00-00T00:00:00Z") for x in search_results]
+            print(f'!!dates={dates}')
+            search_results = sorted(search_results, key=lambda x: x.get("publishedDate") or "0000-00-00T00:00:00Z", reverse=True)
             pass
 
         # search_results = search_results[:topK]
