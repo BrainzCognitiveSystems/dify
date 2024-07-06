@@ -125,9 +125,16 @@ class SearXNGSearchTool(BuiltinTool):
         "news": "content",
         "image": "img_src",
         "video": "iframe_src",
-        "file": "magnetlink"
+        "file": "magnetlink",
     }
+
+    # SearchEnginesMap: https://www.searchenginemap.com/
+    # Web Crawler: Google, Bing, Yandex, Mojeek
+
     ## https://docs.searxng.org/user/configured_engines.html
+    # Presearch : a Decentralized Search Engine
+    # Mojeek : portal to : Brave, Bing, DuckDuckGo, Google, Lilo, Ecosia, Yahoo; Yandex (see: https://www.mojeek.com/preferences#choices)
+    # !web !ddg !br !bi !go !mjk !qwt !yh !qw !ps
     # !yt:youtube ; !od:odysee ; !vm:vimeo ; !dm:dailymotion ; !ptb:peertube ; !ru:rumble !ppd:Piped(youtube proxy)
     # !ddn: DuckDuckGo-news !brnews:BraveNews ; !gon:Google ; !yhn:Yahoo ; !senews:Seeker ; !qwn:Qwant ; !bin:Bing
     # !news !ddn !brnews !gon !yhn !senews !qwn !bin:Bing
@@ -135,8 +142,25 @@ class SearXNGSearchTool(BuiltinTool):
         "json": "json_txt",
         "text": "text",
         "link": "link",
-        "object": "objects"
+        "object": "objects",
     }
+
+    # ## https://www.mojeek.com/preferences#choices
+    # mojeek_SE={
+    #     "Bing":	"https://www.bing.com/search?q={searchTerms}",
+    #     "Brave":	"https://search.brave.com/search?q={searchTerms}",
+    #     "DuckDuckGo":	"https://duckduckgo.com/?q={searchTerms}",
+    #     "Ecosia":	"https://www.ecosia.org/search?q={searchTerms}",
+    #     "Google":	"https://www.google.com/search?q={searchTerms}",
+    #     "Lilo":	"https://search.lilo.org/?q={searchTerms}",
+    #     "Metager":	"https://metager.org/meta/meta.ger3?eingabe={searchTerms}",
+    #     "Qwant":	"https://www.qwant.com/?q={searchTerms}",
+    #     "Startpage":	"https://www.startpage.com/sp/search?q={searchTerms}",
+    #     "Swisscows":	"https://swisscows.com/en/web?query={searchTerms}",
+    #     "Yandex":	"https://yandex.com/search/?text={searchTerms}",
+    #     "Yep":	"https://yep.com/web?q={searchTerms}",
+    #     "You":	"https://you.com/search?q={searchTerms}",
+    # }
 
 
     def _invoke_query(self, user_id: str, host: str, query: str, search_type: str, result_type: str, topK: int = 5) -> list[dict]:
@@ -219,12 +243,6 @@ class SearXNGSearchTool(BuiltinTool):
         results_nbr = len(search_results)
         print(f'!!search_results nbr={results_nbr}')
 
-        if True or "date" in params_internal.get("sortBy","").lower():
-            dates = [x.get("publishedDate", "0000-00-00T00:00:00Z") for x in search_results]
-            print(f'!!dates={dates}')
-            search_results = sorted(search_results, key=lambda x: x.get("publishedDate") or "0000-00-00T00:00:00Z", reverse=True)
-            pass
-
         # search_results = search_results[:topK]
 
         for sr in search_results:               
@@ -240,6 +258,12 @@ class SearXNGSearchTool(BuiltinTool):
                     else:
                         sr["publishedDate_h"] = s[0] + " " + s1
             except: pass
+
+        if True or "date" in params_internal.get("sortBy","").lower():
+            dates = [x.get("publishedDate", "0000-00-00T00:00:00Z") for x in search_results]
+            print(f'!!dates={dates}')
+            search_results = sorted(search_results, key=lambda x: x.get("publishedDate") or "0000-00-00T00:00:00Z", reverse=True)
+            pass
 
         results = []
 

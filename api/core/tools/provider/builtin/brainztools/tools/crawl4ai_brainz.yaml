@@ -1,0 +1,28 @@
+identity:
+  name: crawl4ai_BrainzTools
+  author: BrainzTools
+  label:
+    en_US: HTML Scraper BrainzTools
+description:
+  human:
+    en_US: A tool to extract data from HTML pages.
+  llm: A tool to extract data from HTML pages.
+parameters:
+  - name: url
+    type: string
+    required: true
+    label:
+      en_US: url
+    human_description:
+      en_US: url or '|' separated list of urls to scrape
+    llm_description: url or '|' separated list of urls to scrape
+    form: llm
+  - name: options
+    type: string
+    required: false
+    label:
+      en_US: options
+    human_description:
+      en_US: options to pass to the scraper
+    llm_description: options to pass to the scraper
+    form: llm
