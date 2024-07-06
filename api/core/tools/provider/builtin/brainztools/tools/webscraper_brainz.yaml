@@ -2,9 +2,9 @@ identity:
   name: webscraper_dict
   author: Brainz
   label:
-    en_US: Web Scraper Dict
+    en_US: Web Scraper Dict BRZ
     zh_Hans: 网页爬虫
-    pt_BR: Web Scraper Dict
+    pt_BR: Web Scraper Dict BRZ
 description:
   human:
     en_US: A tool for scraping webpages into dictionary.

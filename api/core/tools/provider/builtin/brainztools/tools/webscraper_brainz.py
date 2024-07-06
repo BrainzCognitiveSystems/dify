@@ -11,9 +11,6 @@ class WebscraperTool_BrainzTools(BuiltinTool):
                 user_id: str,
                 tool_parameters: dict[str, Any],
                 ) -> Union[ToolInvokeMessage, list[ToolInvokeMessage]]:
-        """
-            invoke tools
-        """
         try:
             url = tool_parameters.get('url', '')
             user_agent = tool_parameters.get('user_agent', '')
@@ -24,7 +21,6 @@ class WebscraperTool_BrainzTools(BuiltinTool):
             result = self.get_url_dict(url, user_agent)
 
             if tool_parameters.get('generate_summary'):
-                # summarize and return
                 text = dict_full_template(result)
                 summary = self.summary(user_id=user_id, content=text)
                 result['summary'] = summary
