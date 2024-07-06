@@ -2,7 +2,7 @@ identity:
   name: crawl4ai_BrainzTools
   author: BrainzTools
   label:
-    en_US: HTML Scraper BrainzTools
+    en_US: Crawl4AI Scraper BRZ
 description:
   human:
     en_US: A tool to extract data from HTML pages.

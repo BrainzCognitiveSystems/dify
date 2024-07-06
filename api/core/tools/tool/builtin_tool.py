@@ -4,7 +4,7 @@ from core.model_runtime.entities.message_entities import PromptMessage, SystemPr
 from core.tools.entities.tool_entities import ToolProviderType
 from core.tools.tool.tool import Tool
 from core.tools.utils.model_invocation_utils import ModelInvocationUtils
-from core.tools.utils.web_reader_tool import get_url
+from core.tools.utils.web_reader_tool import get_url, get_url_dict
 
 _SUMMARY_PROMPT = """You are a professional language researcher, you are interested in the language
 and you can quickly aimed at the main point of an webpage and reproduce it in your own words but 
@@ -66,6 +66,14 @@ class BuiltinTool(Tool):
             tenant_id=self.runtime.tenant_id,
             prompt_messages=prompt_messages
         )
+    
+    def do_summarize(self, user_id: str, content: str) -> str:
+        summary = self.invoke_model(user_id=user_id, prompt_messages=[
+            SystemPromptMessage(content=_SUMMARY_PROMPT),
+            UserPromptMessage(content=content)
+        ], stop=[])
+
+        return summary
 
     def summary(self, user_id: str, content: str) -> str:
         max_tokens = self.get_max_tokens()
@@ -82,11 +90,7 @@ class BuiltinTool(Tool):
             ])
         
         def summarize(content: str) -> str:
-            summary = self.invoke_model(user_id=user_id, prompt_messages=[
-                SystemPromptMessage(content=_SUMMARY_PROMPT),
-                UserPromptMessage(content=content)
-            ], stop=[])
-
+            summary = self.do_summarize(user_id, content)
             return summary.message.content
 
         lines = content.split('\n')
@@ -139,3 +143,9 @@ class BuiltinTool(Tool):
             get url
         """
         return get_url(url, user_agent=user_agent)
+    
+    def get_url_dict(self, url: str, user_agent: str = None) -> dict:
+        """
+            get url dict
+        """
+        return get_url_dict(url, user_agent)

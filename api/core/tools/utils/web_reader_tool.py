@@ -34,7 +34,7 @@ def page_result(text: str, cursor: int, max_length: int) -> str:
     return text[cursor: cursor + max_length]
 
 
-def get_url(url: str, user_agent: str = None) -> str:
+def get_url_dict(url: str, user_agent: str = None) -> str:
     """Fetch URL and return the contents as a string."""
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -72,15 +72,35 @@ def get_url(url: str, user_agent: str = None) -> str:
     a = extract_using_readabilipy(response.text)
 
     if not a['plain_text'] or not a['plain_text'].strip():
-        return get_url_from_newspaper3k(url)
+        a = Article(url)
+        a.download()
+        a.parse()
+        a = {
+            "title": a.title,
+            "authors": a.authors,
+            "publish_date": a.publish_date,
+            "top_image": a.top_image,
+            "text": a.text,
+        }
 
-    res = FULL_TEMPLATE.format(
+    return a
+
+def dict_full_template(a: dict) -> str:
+    """Return a string formatted using the FULL_TEMPLATE and the provided dictionary."""
+    return FULL_TEMPLATE.format(
         title=a['title'],
         authors=a['byline'],
         publish_date=a['date'],
         top_image="",
-        text=a['plain_text'] if a['plain_text'] else "",
+        text=a['plain_text'] or "",
     )
+
+def get_url(url: str, user_agent: str = None) -> str:
+    """Fetch URL and return the contents as a string."""
+
+    a = get_url_dict(url, user_agent)
+
+    res = dict_full_template(a)
 
     return res
 
