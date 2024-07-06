@@ -88,22 +88,10 @@ class Crawl4AI_BrainzTools(BuiltinTool):
                     pass
                 # print(txt)
                 results[url] = result
-            # {
-            #     'success':result.get('success','?'),
-            #     'error_message':results.get('error_message',""),
-            #     'html':result.get('html',""),
-            #     'cleaned_html':result.get('cleaned_html',""),
-            #     'screenshot':result.get('screenshot',""),
-            #     'markdown':result.get('markdown',""),
-            #     'extracted_content': result.get('extracted_content',""),
-            #     'metadata': result.get('metadata',{}),
-            #     'links': result.get('links',{}),
-            #     'media': result.get('media',{}),
-            # }
+
         except Exception as e:
             print(f'Error: {e}')
 
-        # Run the crawler on a list of URLs
         return results
 
     def _invoke(self, user_id: str, tool_parameters: dict[str, Any]) -> Union[ToolInvokeMessage, list[ToolInvokeMessage]]:
@@ -116,13 +104,7 @@ class Crawl4AI_BrainzTools(BuiltinTool):
             "url": urls,
             "options": options,
             "tool_parameters": tool_parameters,
+            'results_nbr': len(results)
         }
-        meta['results_nbr'] = len(results)
         return results, meta
 
-
-if __name__ == "__main__":
-    urls = ["https://www.nbcnews.com/business", "https://www.nbcnews.com/"]
-    options = { 'word_count_threshold': 10, 'bypass_cache':True, 'screenshot':False }
-    results = Crawl4AI_BrainzTools.get_results(urls, options)
-    print(results)
