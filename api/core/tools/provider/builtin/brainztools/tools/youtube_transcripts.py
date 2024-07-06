@@ -51,13 +51,12 @@ def Youtube_get_transcripts(video_id, languages=["en", "fr"]):
 
         if languages == "*" or language_code in languages:
             properties = Transcript_properties(transcript)
-            transcripts[language_code] = { 'properties':properties }
-            # fetch the actual transcript data
-            data = transcript.fetch()
-            # print(data)
-            # ex: [{'text': 'imaginez ceci, une machine qui pourrait', 'start': 0.4, 'duration': 4.72}, ...]
-            transcripts[language_code]['data'] = data
-            transcripts[language_code]['text'] = " ".join([x['text'] for x in data])
+            tr = { 'properties':properties }
+            tr['data'] = transcript.fetch() # ex: [{'text': 'imaginez ceci, une machine qui pourrait', 'start': 0.4, 'duration': 4.72}, ...]
+            tr['data_size'] = len(tr['data'])
+            tr['text'] = " ".join([x['text'] for x in tr['data']])
+            tr['text_size'] = len(tr['text'])
+            transcripts[language_code] = tr
 
         
     if False:
@@ -78,10 +77,12 @@ def Youtube_get_transcripts(video_id, languages=["en", "fr"]):
                 print(tr2)
                 properties = Transcript_properties(tr2)
                 properties['is_translated'] = True
-                transcripts[lg] = { 'properties': properties }
-                data = tr2.fetch()
-                transcripts[lg]['data'] = data
-                transcripts[lg]['text'] = " ".join([x['text'] for x in data])
+                tr = { 'properties': properties }
+                tr['data'] = tr2.fetch()
+                tr['data_size'] = len(tr['data'])
+                tr['text'] = " ".join([x['text'] for x in tr['data']])
+                tr['text_size'] = len(tr['text'])
+                transcripts[lg] = tr
 
                 # or just filter for manually created transcripts
                 # transcript = transcript_list.find_manually_created_transcript(['en'])
