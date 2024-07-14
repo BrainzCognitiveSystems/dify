@@ -64,6 +64,7 @@ class LargeLanguageModel(AIModel):
             model_parameters = {}
 
         model_parameters = self._validate_and_filter_model_parameters(model, model_parameters, credentials)
+        model_parameters.pop('max_tokens', None) # !!! DG for testing
 
         self.started_at = time.perf_counter()
 

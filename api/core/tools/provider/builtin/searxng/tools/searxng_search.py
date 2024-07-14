@@ -7,57 +7,7 @@ import requests
 from core.tools.entities.tool_entities import ToolInvokeMessage
 from core.tools.tool.builtin_tool import BuiltinTool
 
-def url_detect_file_type(url):
-    print(f'!!url_detect_file_type: url={url}')
-    properties = {}
-    try:
-        # find regex like "https://www.youtube.com/watch?v=xxxxx"
-        m = re.search(r"http[s]://www.youtube.com/watch\?v=([\-\w]+)", url)
-
-        if not m:
-            # find regex like "https://youtu.be/hKa3EZqofNo"
-            m = re.search(r"http[s]://youtu.be/([\-\w]+)", url)
-
-        print(f'!!m={m}')
-
-        if m:
-            properties["url_type"] = "video"
-            properties["url_source"] = "youtube"
-            properties["doc_id"] = m.group(1)
-
-        if not m:
-            # find regex like https://www.youtube.com/channel/UCF9IOB2TExg3QIBupFtBDxg
-            m = re.search(r"http[s]://www.youtube.com/channel/(\w+)", url)
-            if m:
-                properties["url_type"] = "channel"
-                properties["url_source"] = "youtube"
-                properties["doc_id"] = m.group(1)
-
-        if not m:
-            # find regex like "https://odysee.com/@LaUneTV2:c/LeDebatdeNatacha(30)_JIM_BLET:d"
-            # https://odysee.com/@QuadrillageTraduction:1/trim.A98CCED0-E8A4-40CB-89C5-BC19ABADB6D4:4
-            m = re.search(r"http[s]://odysee.com/@(\w+:\w)/(\w+:\w)", url)
-            if m:
-                properties["url_type"] = "video"
-                properties["url_source"] = "odysee"
-                properties["url_channel"] = m.group(1)
-                properties["doc_id"] = m.group(2)
-
-        if not m:
-            # find regex like https://odysee.com/@QuadrillageTraduction:1
-            m = re.search(r"http[s]://odysee.com/@(\w+:\w)", url)
-            if m:
-                properties["url_type"] = "channel"
-                properties["url_source"] = "odysee"
-                properties["url_channel"] = m.group(1)
-        
-        if not m:
-            tgt = "http://dx.doi.org/https://doi.org/1"
-            if url.startswith(tgt):
-                properties['url'] = url.replace(tgt, "https://doi.org/")
-    except: pass
-    print('')
-    return properties
+from core.tools.provider.builtin.brainztools.tools.brz_tools import *
 
 class SearXNGSearchResults(dict):
     """Wrapper for search results."""
@@ -234,6 +184,8 @@ class SearXNGSearchTool(BuiltinTool):
         query = query.replace("  ", " ").strip()
         params["q"] = query
 
+        host = "http://localhost:8094"
+        host = "http://jts1.brainz.ai:8094"
         response = requests.get(host, params=params)
 
         if response.status_code != 200:

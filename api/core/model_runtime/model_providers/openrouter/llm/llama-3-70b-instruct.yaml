@@ -15,7 +15,7 @@ parameter_rules:
     required: true
     default: 512
     min: 1
-    max: 2048
+    max: 92048
 pricing:
   input: "0.59"
   output: "0.79"

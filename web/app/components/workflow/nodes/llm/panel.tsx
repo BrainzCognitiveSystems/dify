@@ -290,6 +290,16 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               type='string'
               description={t(`${i18nPrefix}.outputVars.output`)}
             />
+            <VarItem
+              name='usage'
+              type='object'
+              description={t(`${i18nPrefix}.outputVars.usage`)}
+            />
+            <VarItem
+              name='model_config'
+              type='object'
+              description='model_config'
+            />
           </>
         </OutputVars>
       </div>

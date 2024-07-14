@@ -125,7 +125,14 @@ class LLMNode(BaseNode):
 
         outputs = {
             'text': result_text,
-            'usage': jsonable_encoder(usage)
+            'usage' : jsonable_encoder(usage),
+            'model_config': {   # !!DG: added to get access in the output
+                'mode': model_config.mode,
+                'model': model_config.model,
+                'provider': model_config.provider,
+                'parameters': model_config.parameters,
+                'stop': model_config.stop,
+            }
         }
 
         return NodeRunResult(

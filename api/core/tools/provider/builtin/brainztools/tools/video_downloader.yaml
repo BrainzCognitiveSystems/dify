@@ -1,0 +1,29 @@
+identity:
+  name: video_downloader_BrainzTools
+  author: BrainzTools
+  label:
+    en_US: Video Downloader BrainzTools
+description:
+  human:
+    en_US: A tool to retrieve videos or audio from the YouTube, Odysee, etc. video portals
+  llm: A tool to retrieve videos or audio from the YouTube, Odysee, etc. video portals
+parameters:
+  - name: video_ids
+    type: string
+    required: true
+    label:
+      en_US: video_ids ( space ' ' separated videos IDs or URLs)
+    human_description:
+      en_US: Used to define the video you want to download. You can find the video id's in YouTube page that appears in URL. For example - https://www.youtube.com/watch?v=video_id
+    llm_description: Used to define the video you want to download.
+    form: llm
+  - name: options
+    type: string
+    required: false
+    label:
+      en_US: options
+      zh_Hans: 语言
+    human_description:
+      en_US: Used to set the options.
+    llm_description: Used to set the options.
+    form: llm

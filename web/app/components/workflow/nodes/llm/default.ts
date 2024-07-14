@@ -56,12 +56,13 @@ const nodeDefault: NodeDefault<LLMNodeType> = {
         errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t('workflow.nodes.llm.prompt') })
     }
 
-    if (!errorMessages && !!payload.memory) {
-      const isChatModel = payload.model.mode === 'chat'
-      // payload.memory.query_prompt_template not pass is default: {{#sys.query#}}
-      if (isChatModel && !!payload.memory.query_prompt_template && !payload.memory.query_prompt_template.includes('{{#sys.query#}}'))
-        errorMessages = t('workflow.nodes.llm.sysQueryInUser')
-    }
+    // BRZ: Let's remove because the Prompt can be supplied through a tempate or after special treatments (translation, etc.)...
+    // if (!errorMessages && !!payload.memory) {
+    //   const isChatModel = payload.model.mode === 'chat'
+    //   // payload.memory.query_prompt_template not pass is default: {{#sys.query#}}
+    //   if (isChatModel && !!payload.memory.query_prompt_template && !payload.memory.query_prompt_template.includes('{{#sys.query#}}'))
+    //     errorMessages = t('workflow.nodes.llm.sysQueryInUser')
+    // }
 
     if (!errorMessages) {
       const isChatModel = payload.model.mode === 'chat'
