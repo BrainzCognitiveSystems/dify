@@ -1,3 +1,5 @@
+_cache_/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -174,3 +176,4 @@ sdks/python-client/dify_client.egg-info
 .vscode/*
 !.vscode/launch.json
 pyrightconfig.json
+
