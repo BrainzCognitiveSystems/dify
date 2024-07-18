@@ -236,7 +236,7 @@ class OllamaLargeLanguageModel(LargeLanguageModel):
 
         # send a post request to validate the credentials
         response = requests.post(
-            endpoint_url, headers=headers, json=data, timeout=(10, 300), stream=stream
+            endpoint_url, headers=headers, json=data, timeout=(10, 600), stream=stream # !!DG: timeout increased from (10, 300)
         )
 
         response.encoding = "utf-8"

@@ -26,7 +26,7 @@ class BuiltinToolProviderController(ToolProviderController):
         # load provider yaml
         provider = self.__class__.__module__.split('.')[-1]
         yaml_path = path.join(path.dirname(path.realpath(__file__)), 'builtin', provider, f'{provider}.yaml')
-        print(f"\n!!!BuiltinToolProviderController::__init__: yaml_path={yaml_path}")
+        # !!DG: print(f"!!!BuiltinToolProviderController::__init__: yaml_path={yaml_path}")
         try:
             provider_yaml = load_yaml_file(yaml_path)
         except Exception as e:
