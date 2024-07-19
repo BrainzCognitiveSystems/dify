@@ -194,6 +194,18 @@ class OllamaLargeLanguageModel(LargeLanguageModel):
 
         data["options"] = model_parameters or {}
 
+        if "num_ctx" not in data["options"]:
+            num_ctx = 3500
+            for message in prompt_messages:
+                m = re.match(r"<num_ctx=(\d+)>[\n]", message.content)
+                if m:
+                    try:
+                        num_ctx = int(m.group(1))
+                        prompt_messages[0].content = re.sub(m.group(0), "", prompt_messages[0].content)
+                        break
+                    except: pass
+            data["options"]["num_ctx"] = num_ctx # !!DG: increased from 2048 to <num_ctx=3500>
+
         if stop:
             data["options"]["stop"] = stop
 
@@ -236,7 +248,7 @@ class OllamaLargeLanguageModel(LargeLanguageModel):
 
         # send a post request to validate the credentials
         response = requests.post(
-            endpoint_url, headers=headers, json=data, timeout=(10, 600), stream=stream # !!DG: timeout increased from (10, 300)
+            endpoint_url, headers=headers, json=data, timeout=(10, 1200), stream=stream # !!DG: timeout increased from (10, 300) , MSI-Raider NH2-8x7b-32k can answer 6k tokens in 15min!
         )
 
         response.encoding = "utf-8"
