@@ -2,7 +2,16 @@ import json
 
 ## Cache
 PUBLIC_USER_ID = 'public'
+
 import os
+import re
+
+
+## TO BE IMPORTED AS BELOW:
+# from .brz_tools import *
+# from core.tools.provider.builtin.brainztools.tools import brz_tools
+
+
 from pathlib import Path
 CACHE_path='../_cache_/'
 cache_path_obj = Path(CACHE_path)
@@ -80,6 +89,53 @@ def Cache_DeleteAllCache():
     except Exception as e:
         print(f'Cache_DeleteAllCache: (ERROR) "{cache_path_obj}" {e}')
         
+## =================================================================================================
+import subprocess
+def Subprocess_with_line_callback(command, line_callback):
+
+    # Start the process
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Read the output stream incrementally
+    while True:
+        output_line = process.stdout.readline()
+        if not output_line:
+            break  # Break the loop if no more output
+        yield output_line  # Yield the output line instead of printing
+
+    # Wait for the process to terminate and get the exit code
+    exit_code = process.wait()
+    if exit_code != 0:
+        raise Exception(f"Process exited with code {exit_code}")
+    
+## =================================================================================================
+
+def Youtube_parse_video_ids(iris, with_info=False):
+    iris_lst = iris.replace(' ','|').replace('||','|').split('|')
+    videos=[]
+    for iri in iris_lst:
+        m = re.search(r"(http[s])://www.youtube.com/watch\?v=([a-zA-Z0-9_-]{11})", iri)
+        if not m:
+            m = re.search(r"(http[s])://youtu.be/([a-zA-Z0-9_-]{11})", iri)
+        if not m:
+            m = re.search(r"()(^[a-zA-Z0-9_-]{11}$)", iri)
+        # if not /^https?:\/\/(?:www\.)?youtube.com\/(?:watch\?v=|embed\/|v\/|shorts\/|channel\/|user\/)[a-zA-Z0-9_-]{11}$/
+        #     m = re.search(r"(\w+)", iri)
+        if m:
+            if with_info:
+                video = {
+                    'video_source' : 'youtube',
+                    'protocol' : m.group(1),
+                    'video_id' : m.group(2),
+                    'video_iri' : iri,
+                }
+                videos.append(video)
+            else:
+                videos.append(m.group(2))
+    return videos
+
+import json
+
 ## =================================================================================================
 
 def url_detect_file_type(url):
